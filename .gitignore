@@ -1,0 +1,49 @@
+# Python
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+*.pyd
+
+# Django
+*.log
+*.pot
+*.pyc
+*.pyo
+
+# Base de datos - **no ignorar estos archivos**
+*.db
+*.sqlite3
+
+# Static files
+/static/
+/media/
+
+# Environments
+.venv/
+venv/
+env/
+env.bak/
+venv.bak/
+
+# IDEs and editors
+.vscode/
+.idea/
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+ehthumbs.db
+
+# Coverage reports
+.coverage
+*.cover
+*.py,cover
+
+# MyPy
+.mypy_cache/
+
+# Pytest
+.cache/
