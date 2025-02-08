@@ -38,9 +38,21 @@ class Inventario(models.Model):
 
 
 class Asignacion(models.Model):
-    inventario = models.ForeignKey(Inventario, on_delete=models.CASCADE)
-    restaurante_origen = models.ForeignKey(Restaurante, on_delete=models.CASCADE, related_name="envios")
-    restaurante_destino = models.ForeignKey(Restaurante, on_delete=models.CASCADE, related_name="recepciones")
+    inventario = models.ForeignKey(
+        'Inventario', 
+        on_delete=models.CASCADE, 
+        related_name="asignaciones"
+    )
+    restaurante_origen = models.ForeignKey(
+        'Restaurante', 
+        on_delete=models.PROTECT, 
+        related_name="envios"
+    )
+    restaurante_destino = models.ForeignKey(
+        'Restaurante', 
+        on_delete=models.PROTECT, 
+        related_name="recepciones"
+    )
     cantidad_asignada = models.PositiveIntegerField()
     fecha_asignacion = models.DateTimeField(default=now, blank=True)
 

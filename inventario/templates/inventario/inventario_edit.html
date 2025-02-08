@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h1>Editar Producto</h1>
+  
+  <form method="POST">
+    {% csrf_token %}
+    
+    <!-- Mostrar errores si existen -->
+    {% if form.errors %}
+      <div class="errors">
+        <ul>
+          {% for field in form %}
+            {% for error in field.errors %}
+              <li>{{ error }}</li>
+            {% endfor %}
+          {% endfor %}
+        </ul>
+      </div>
+    {% endif %}
+    
+    {{ form.as_p }}
+    
+    <button type="submit">Guardar Cambios</button>
+  </form>
+  
+{% endblock %}

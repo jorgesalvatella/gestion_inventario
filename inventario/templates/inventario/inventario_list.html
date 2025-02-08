@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>Lista de Inventarios</h1>
+    <ul>
+        {% for item in inventarios %}
+            <li>{{ item.nombre }} - {{ item.cantidad }}</li>
+        {% endfor %}
+    </ul>
+{% endblock %}

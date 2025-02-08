@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h1>Listado de Asignaciones</h1>
+
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Producto</th>
+        <th>Origen</th>
+        <th>Destino</th>
+        <th>Cantidad</th>
+        <th>Fecha</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for asignacion in asignaciones %}
+      <tr>
+        <td>{{ asignacion.inventario.nombre }}</td>  <!-- Verifica que 'nombre' sea el campo correcto -->
+        <td>{{ asignacion.restaurante_origen.nombre }}</td>  <!-- Verifica que 'nombre' sea el campo correcto -->
+        <td>{{ asignacion.restaurante_destino.nombre }}</td>  <!-- Verifica que 'nombre' sea el campo correcto -->
+        <td>{{ asignacion.cantidad_asignada }}</td>
+        <td>{{ asignacion.fecha_asignacion }}</td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="5">No hay asignaciones disponibles.</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}
