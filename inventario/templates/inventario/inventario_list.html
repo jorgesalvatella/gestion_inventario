@@ -1,10 +1,65 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <h1>Lista de Inventarios</h1>
-    <ul>
-        {% for item in inventarios %}
-            <li>{{ item.nombre }} - {{ item.cantidad }}</li>
+<h1>Inventario</h1>
+
+<!-- 📌 Formulario de Filtros -->
+<form method="GET">
+    <input type="text" name="nombre" placeholder="Buscar por nombre" value="{{ request.GET.nombre }}">
+    <select name="restaurante">
+        <option value="">Todos los restaurantes</option>
+        {% for restaurante in restaurantes %}
+            <option value="{{ restaurante.id }}" {% if request.GET.restaurante == restaurante.id|stringformat:"s" %}selected{% endif %}>
+                {{ restaurante.nombre }}
+            </option>
         {% endfor %}
-    </ul>
+    </select>
+    <select name="grupo">
+        <option value="">Todos los grupos</option>
+        {% for grupo in grupos %}
+            <option value="{{ grupo.id }}" {% if request.GET.grupo == grupo.id|stringformat:"s" %}selected{% endif %}>
+                {{ grupo.nombre }}
+            </option>
+        {% endfor %}
+    </select>
+    <input type="text" name="material" placeholder="Material" value="{{ request.GET.material }}">
+    <input type="text" name="marca" placeholder="Marca" value="{{ request.GET.marca }}">
+    <button type="submit">Filtrar</button>
+</form>
+
+<!-- 📌 Botones de Ordenamiento -->
+<a href="?orden=nombre">Ordenar por Nombre (A-Z)</a>
+<a href="?orden=-nombre">Ordenar por Nombre (Z-A)</a>
+<a href="?orden=cantidad">Ordenar por Cantidad (Ascendente)</a>
+<a href="?orden=-cantidad">Ordenar por Cantidad (Descendente)</a>
+<a href="?orden=-fecha_ingreso">Más Reciente</a>
+<a href="?orden=fecha_ingreso">Más Antiguo</a>
+
+<table>
+    <thead>
+        <tr>
+            <th>Nombre</th>
+            <th>Restaurante</th>
+            <th>Grupo</th>
+            <th>Material</th>
+            <th>Marca</th>
+            <th>Cantidad</th>
+            <th>Fecha de Ingreso</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for producto in productos %}
+        <tr>
+            <td>{{ producto.nombre }}</td>
+            <td>{{ producto.restaurante.nombre }}</td>
+            <td>{{ producto.grupo.nombre }}</td>
+            <td>{{ producto.material }}</td>
+            <td>{{ producto.marca }}</td>
+            <td>{{ producto.cantidad }}</td>
+            <td>{{ producto.fecha_ingreso }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
 {% endblock %}
