@@ -1,65 +1,127 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h1>Inventario</h1>
+<div class="container mt-4">
+    <h1 class="text-center mb-4">📦 Inventario</h1>
 
-<!-- 📌 Formulario de Filtros -->
-<form method="GET">
-    <input type="text" name="nombre" placeholder="Buscar por nombre" value="{{ request.GET.nombre }}">
-    <select name="restaurante">
-        <option value="">Todos los restaurantes</option>
-        {% for restaurante in restaurantes %}
-            <option value="{{ restaurante.id }}" {% if request.GET.restaurante == restaurante.id|stringformat:"s" %}selected{% endif %}>
-                {{ restaurante.nombre }}
-            </option>
-        {% endfor %}
-    </select>
-    <select name="grupo">
-        <option value="">Todos los grupos</option>
-        {% for grupo in grupos %}
-            <option value="{{ grupo.id }}" {% if request.GET.grupo == grupo.id|stringformat:"s" %}selected{% endif %}>
-                {{ grupo.nombre }}
-            </option>
-        {% endfor %}
-    </select>
-    <input type="text" name="material" placeholder="Material" value="{{ request.GET.material }}">
-    <input type="text" name="marca" placeholder="Marca" value="{{ request.GET.marca }}">
-    <button type="submit">Filtrar</button>
-</form>
+    <!-- 📌 Formulario de Filtros -->
+    <form method="GET" class="row g-2 gy-3 mb-4">
+        <div class="col-12 col-md-4">
+            <input type="text" name="nombre" class="form-control" placeholder="🔍 Buscar por nombre" value="{{ request.GET.nombre }}">
+        </div>
+        <div class="col-6 col-md-3">
+            <select name="restaurante" class="form-select">
+                <option value="">🏬 Todos los restaurantes</option>
+                {% for restaurante in restaurantes %}
+                    <option value="{{ restaurante.id }}" {% if request.GET.restaurante == restaurante.id|stringformat:"s" %}selected{% endif %}>
+                        {{ restaurante.nombre }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-6 col-md-3">
+            <select name="grupo" class="form-select">
+                <option value="">📂 Todos los grupos</option>
+                {% for grupo in grupos %}
+                    <option value="{{ grupo.id }}" {% if request.GET.grupo == grupo.id|stringformat:"s" %}selected{% endif %}>
+                        {{ grupo.nombre }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-6 col-md-4">
+            <input type="text" name="material" class="form-control" placeholder="🏗️ Material" value="{{ request.GET.material }}">
+        </div>
+        <div class="col-6 col-md-4">
+            <input type="text" name="marca" class="form-control" placeholder="🏷️ Marca" value="{{ request.GET.marca }}">
+        </div>
+        <div class="col-12 col-md-4 text-md-end">
+            <button type="submit" class="btn btn-dark w-100">Filtrar 🔍</button>
+        </div>
+    </form>
 
-<!-- 📌 Botones de Ordenamiento -->
-<a href="?orden=nombre">Ordenar por Nombre (A-Z)</a>
-<a href="?orden=-nombre">Ordenar por Nombre (Z-A)</a>
-<a href="?orden=cantidad">Ordenar por Cantidad (Ascendente)</a>
-<a href="?orden=-cantidad">Ordenar por Cantidad (Descendente)</a>
-<a href="?orden=-fecha_ingreso">Más Reciente</a>
-<a href="?orden=fecha_ingreso">Más Antiguo</a>
+    <!-- 📌 Botones de Ordenamiento -->
+    <div class="text-center mb-4">
+        <div class="d-flex flex-wrap justify-content-center gap-2">
+            <a href="?orden=nombre" class="btn btn-outline-dark">🔠 Nombre (A-Z)</a>
+            <a href="?orden=-nombre" class="btn btn-outline-dark">🔠 Nombre (Z-A)</a>
+            <a href="?orden=cantidad" class="btn btn-outline-dark">📊 Cantidad ↑</a>
+            <a href="?orden=-cantidad" class="btn btn-outline-dark">📉 Cantidad ↓</a>
+            <a href="?orden=-fecha_ingreso" class="btn btn-outline-dark">🕒 Más Reciente</a>
+            <a href="?orden=fecha_ingreso" class="btn btn-outline-dark">🕒 Más Antiguo</a>
+        </div>
+    </div>
 
-<table>
-    <thead>
-        <tr>
-            <th>Nombre</th>
-            <th>Restaurante</th>
-            <th>Grupo</th>
-            <th>Material</th>
-            <th>Marca</th>
-            <th>Cantidad</th>
-            <th>Fecha de Ingreso</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for producto in productos %}
-        <tr>
-            <td>{{ producto.nombre }}</td>
-            <td>{{ producto.restaurante.nombre }}</td>
-            <td>{{ producto.grupo.nombre }}</td>
-            <td>{{ producto.material }}</td>
-            <td>{{ producto.marca }}</td>
-            <td>{{ producto.cantidad }}</td>
-            <td>{{ producto.fecha_ingreso }}</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+    <!-- 📌 Vista para Pantallas Grandes: Tabla -->
+    <div class="d-none d-md-block">
+        <table class="table table-hover table-striped align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>📸 Imagen</th>
+                    <th>📦 Nombre</th>
+                    <th>🏬 Restaurante</th>
+                    <th>📂 Grupo</th>
+                    <th>🏗️ Material</th>
+                    <th>🏷️ Marca</th>
+                    <th>📊 Cantidad</th>
+                    <th>🕒 Fecha de Ingreso</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for producto in productos %}
+                <tr>
+                    <td>
+                        {% if producto.imagen %}
+                            <img src="{{ producto.imagen.url }}" alt="{{ producto.nombre }}" class="img-thumbnail" width="70">
+                        {% else %}
+                            <span class="text-muted">Sin imagen</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ producto.nombre }}</td>
+                    <td>{{ producto.restaurante.nombre }}</td>
+                    <td>{{ producto.grupo.nombre }}</td>
+                    <td>{{ producto.material }}</td>
+                    <td>{{ producto.marca }}</td>
+                    <td class="fw-bold">{{ producto.cantidad }}</td>
+                    <td>{{ producto.fecha_ingreso|date:"d M Y" }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="8" class="text-center text-muted">No hay productos en el inventario.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 
+    <!-- 📌 Vista para Pantallas Pequeñas: Grid de Tarjetas -->
+    <div class="d-md-none">
+        <div class="row row-cols-1 row-cols-sm-2 g-3">
+            {% for producto in productos %}
+            <div class="col">
+                <div class="card h-100 shadow-sm">
+                    {% if producto.imagen %}
+                        <img src="{{ producto.imagen.url }}" class="card-img-top" alt="{{ producto.nombre }}">
+                    {% endif %}
+                    <div class="card-body">
+                        <h5 class="card-title">{{ producto.nombre }}</h5>
+                        <p class="card-text">
+                            <strong>🏬 Restaurante:</strong> {{ producto.restaurante.nombre }}<br>
+                            <strong>📂 Grupo:</strong> {{ producto.grupo.nombre }}<br>
+                            <strong>🏗️ Material:</strong> {{ producto.material }}<br>
+                            <strong>🏷️ Marca:</strong> {{ producto.marca }}<br>
+                            <strong>📊 Cantidad:</strong> {{ producto.cantidad }}<br>
+                            <strong>🕒 Fecha:</strong> {{ producto.fecha_ingreso|date:"d M Y" }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col">
+                <div class="alert alert-warning text-center">No hay productos en el inventario.</div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
 {% endblock %}
