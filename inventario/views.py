@@ -1,3 +1,4 @@
+from django.core.paginator import Paginator
 from django.shortcuts import render, get_object_or_404, redirect
 from .models import Inventario, Asignacion, Restaurante, Grupo  # Importamos los modelos necesarios
 from .forms import AsignacionForm, InventarioForm  # Importamos los formularios necesarios
@@ -26,20 +27,23 @@ def asignar_producto(request):
     return render(request, 'inventario/asignar_producto.html', {'form': form})
 
 
+from django.core.paginator import Paginator
+from django.shortcuts import render, get_object_or_404, redirect
+from .models import Inventario, Restaurante, Grupo
+from .forms import InventarioForm
+
 def inventario_list(request):
     productos = Inventario.objects.all()
     restaurantes = Restaurante.objects.all()
     grupos = Grupo.objects.all()
 
-    # Obtener los parámetros de filtrado
+    # Filtros
     nombre = request.GET.get('nombre')
     restaurante = request.GET.get('restaurante')
     grupo = request.GET.get('grupo')
     material = request.GET.get('material')
     marca = request.GET.get('marca')
-    orden = request.GET.get('orden')
 
-    # Aplicar filtros si existen
     if nombre:
         productos = productos.filter(nombre__icontains=nombre)
     if restaurante:
@@ -50,16 +54,22 @@ def inventario_list(request):
         productos = productos.filter(material__icontains=material)
     if marca:
         productos = productos.filter(marca__icontains=marca)
-    
-    # Aplicar ordenamiento si se especifica
+
+    orden = request.GET.get('orden')
     if orden:
         productos = productos.order_by(orden)
 
+    # Paginación
+    paginator = Paginator(productos, 10)  # 10 productos por página
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
     return render(request, 'inventario/inventario_list.html', {
-        'productos': productos,
+        'page_obj': page_obj,
         'restaurantes': restaurantes,
         'grupos': grupos,
     })
+
 
 
 def inventario_edit(request, pk):

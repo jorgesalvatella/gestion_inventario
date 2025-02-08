@@ -40,19 +40,7 @@
         </div>
     </form>
 
-    <!-- 📌 Botones de Ordenamiento -->
-    <div class="text-center mb-4">
-        <div class="d-flex flex-wrap justify-content-center gap-2">
-            <a href="?orden=nombre" class="btn btn-outline-dark">🔠 Nombre (A-Z)</a>
-            <a href="?orden=-nombre" class="btn btn-outline-dark">🔠 Nombre (Z-A)</a>
-            <a href="?orden=cantidad" class="btn btn-outline-dark">📊 Cantidad ↑</a>
-            <a href="?orden=-cantidad" class="btn btn-outline-dark">📉 Cantidad ↓</a>
-            <a href="?orden=-fecha_ingreso" class="btn btn-outline-dark">🕒 Más Reciente</a>
-            <a href="?orden=fecha_ingreso" class="btn btn-outline-dark">🕒 Más Antiguo</a>
-        </div>
-    </div>
-
-    <!-- 📌 Vista para Pantallas Grandes: Tabla -->
+    <!-- 📌 Tabla para Pantallas Grandes -->
     <div class="d-none d-md-block">
         <table class="table table-hover table-striped align-middle">
             <thead class="table-dark">
@@ -68,7 +56,7 @@
                 </tr>
             </thead>
             <tbody>
-                {% for producto in productos %}
+                {% for producto in page_obj %}
                 <tr>
                     <td>
                         {% if producto.imagen %}
@@ -94,10 +82,10 @@
         </table>
     </div>
 
-    <!-- 📌 Vista para Pantallas Pequeñas: Grid de Tarjetas -->
+    <!-- 📌 Tarjetas para Pantallas Pequeñas -->
     <div class="d-md-none">
         <div class="row row-cols-1 row-cols-sm-2 g-3">
-            {% for producto in productos %}
+            {% for producto in page_obj %}
             <div class="col">
                 <div class="card h-100 shadow-sm">
                     {% if producto.imagen %}
@@ -123,5 +111,49 @@
             {% endfor %}
         </div>
     </div>
+
+    <!-- 📌 Controles de Paginación Responsivos -->
+    <div class="d-flex flex-wrap justify-content-center mt-4">
+        <ul class="pagination pagination-lg d-flex flex-wrap justify-content-center gap-2">
+            {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link btn btn-outline-dark rounded-pill px-3" 
+                    href="?page=1{% if request.GET.nombre %}&nombre={{ request.GET.nombre }}{% endif %}
+                    {% if request.GET.restaurante %}&restaurante={{ request.GET.restaurante }}{% endif %}
+                    {% if request.GET.grupo %}&grupo={{ request.GET.grupo }}{% endif %}
+                    {% if request.GET.material %}&material={{ request.GET.material }}{% endif %}
+                    {% if request.GET.marca %}&marca={{ request.GET.marca }}{% endif %}">
+                        ⏮ Primero
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link btn btn-outline-dark rounded-pill px-3" href="?page={{ page_obj.previous_page_number }}">
+                        ◀ Anterior
+                    </a>
+                </li>
+            {% endif %}
+
+            <li class="page-item active">
+                <span class="page-link btn btn-dark text-white rounded-pill px-3">
+                    Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
+                </span>
+            </li>
+
+            {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link btn btn-outline-dark rounded-pill px-3" href="?page={{ page_obj.next_page_number }}">
+                        Siguiente ▶
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link btn btn-outline-dark rounded-pill px-3" href="?page={{ page_obj.paginator.num_pages }}">
+                        Último ⏭
+                    </a>
+                </li>
+            {% endif %}
+        </ul>
+    </div>
+
+
 </div>
 {% endblock %}
