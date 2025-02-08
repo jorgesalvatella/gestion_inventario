@@ -3,21 +3,28 @@ from django.shortcuts import render, get_object_or_404, redirect
 from .models import Inventario, Asignacion, Restaurante, Grupo  # Importamos los modelos necesarios
 from .forms import AsignacionForm, InventarioForm  # Importamos los formularios necesarios
 from django.http import HttpResponse
-from reportlab.lib.pagesizes import landscape, letter
-from reportlab.pdfgen import canvas
-from reportlab.lib.utils import ImageReader
-from reportlab.lib import colors
+from django.template.loader import render_to_string
+from weasyprint import HTML, CSS
+from django.conf import settings
 from .models import Inventario
+from datetime import datetime
 
 def agregar_producto(request):
+    ultimo_producto = Inventario.objects.order_by('-fecha_ingreso').first()
+
     if request.method == "POST":
-        form = InventarioForm(request.POST, request.FILES)  # ✅ Agregamos request.FILES para imágenes
+        form = InventarioForm(request.POST, request.FILES)
         if form.is_valid():
             form.save()
-            return redirect('inventario_list')  # ✅ Redirige después de guardar
+            return redirect('agregar_producto')  # Redirige para ver el último agregado
     else:
         form = InventarioForm()
-    return render(request, 'inventario/agregar_producto.html', {'form': form})
+
+    return render(request, 'inventario/agregar_producto.html', {
+        'form': form,
+        'ultimo_producto': ultimo_producto,
+    })
+
 
 
 def asignar_producto(request):
@@ -97,86 +104,60 @@ def asignaciones_list(request):
     return render(request, 'inventario/asignaciones_list.html', {'asignaciones': asignaciones})
 
 def generar_pdf_inventario(request):
-    """Genera un PDF con el inventario paginado y columnas ajustadas automáticamente."""
-    
+    """Genera un PDF con el inventario paginado, ordenado y con imágenes."""
+
+    # Obtener la URL base del sitio para cargar imágenes
+    base_url = request.build_absolute_uri('/').rstrip('/')
+
+    # Obtener datos ordenados por restaurante y nombre de producto
+    productos = Inventario.objects.all().order_by("restaurante__nombre", "nombre")
+
+    # Contexto para la plantilla HTML
+    context = {
+        'productos': productos,
+        'base_url': base_url,
+        'fecha_impresion': datetime.now().strftime("%d/%m/%Y"),
+    }
+
+    # Renderizar HTML con contexto
+    html_string = render_to_string("inventario/inventario_pdf.html", context)
+
+    # Generar el PDF con estilos CSS
+    pdf = HTML(string=html_string, base_url=base_url).write_pdf(
+        stylesheets=[CSS(string="""
+            @page {
+                size: A4 landscape;
+                margin: 20mm;
+            }
+            body {
+                font-family: Arial, sans-serif;
+                font-size: 12px;
+            }
+            table {
+                width: 100%;
+                border-collapse: collapse;
+            }
+            th, td {
+                border: 1px solid #ddd;
+                padding: 8px;
+                text-align: left;
+                word-wrap: break-word;
+                overflow-wrap: break-word;
+                max-width: 200px;
+            }
+            th {
+                background-color: #f2f2f2;
+                font-weight: bold;
+            }
+            img {
+                width: 80px;
+                height: 80px;
+                object-fit: cover;
+            }
+        """)]
+    )
+
     # Configurar respuesta HTTP
-    response = HttpResponse(content_type='application/pdf')
+    response = HttpResponse(pdf, content_type='application/pdf')
     response['Content-Disposition'] = 'attachment; filename="inventario.pdf"'
-
-    # Configurar lienzo PDF en tamaño carta horizontal
-    pdf_canvas = canvas.Canvas(response, pagesize=landscape(letter))
-    width, height = landscape(letter)  # Obtener dimensiones
-    
-    # Cargar logo (Asegúrate de que el archivo esté en "static/images/logo.png")
-    logo_path = "static/images/logo.png"
-    try:
-        logo = ImageReader(logo_path)
-        pdf_canvas.drawImage(logo, 40, height - 80, width=120, height=50, preserveAspectRatio=True)
-    except:
-        pass  # Si no hay logo, no detiene la generación del PDF
-
-    # Encabezado
-    pdf_canvas.setFont("Helvetica-Bold", 16)
-    pdf_canvas.drawString(200, height - 60, "📦 Reporte de Inventario")
-
-    # Definir encabezados y calcular anchos dinámicos de columnas
-    headers = ["ID", "Nombre", "Restaurante", "Grupo", "Material", "Marca", "Cantidad", "Fecha"]
-    productos = Inventario.objects.all()
-
-    # Determinar ancho dinámico de columnas basado en el contenido más largo
-    max_widths = [max(len(str(getattr(p, field.lower(), ""))) for p in productos) for field in headers]
-    base_width = 50
-    col_widths = [max(base_width, w * 7) for w in max_widths]  # Escalar por caracteres
-    
-    start_x, start_y = 40, height - 100  # Posición inicial
-    line_height = 20  # Espaciado entre líneas
-    
-    def draw_table(pdf_canvas, start_y, productos):
-        """Dibuja la tabla paginada en el PDF."""
-        y = start_y
-        pdf_canvas.setFont("Helvetica-Bold", 10)
-        
-        # Dibujar encabezados de la tabla
-        for i, header in enumerate(headers):
-            pdf_canvas.drawString(start_x + sum(col_widths[:i]), y, header)
-
-        pdf_canvas.line(start_x, y - 5, start_x + sum(col_widths), y - 5)  # Línea debajo de encabezado
-        y -= line_height
-
-        # Dibujar filas del inventario
-        pdf_canvas.setFont("Helvetica", 9)
-        for producto in productos:
-            datos = [
-                str(producto.id),
-                producto.nombre,
-                producto.restaurante.nombre if producto.restaurante else "N/A",
-                producto.grupo.nombre if producto.grupo else "N/A",
-                producto.material or "N/A",
-                producto.marca or "N/A",
-                str(producto.cantidad),
-                producto.fecha_ingreso.strftime("%d/%m/%Y"),
-            ]
-            for i, dato in enumerate(datos):
-                pdf_canvas.drawString(start_x + sum(col_widths[:i]), y, dato)
-
-            y -= line_height
-
-            if y < 40:  # Si llega al final de la página, agregar nueva página
-                pdf_canvas.showPage()
-                y = height - 100  # Reset posición
-                
-                # Redibujar encabezado en nueva página
-                pdf_canvas.setFont("Helvetica-Bold", 16)
-                pdf_canvas.drawString(200, height - 60, "📦 Reporte de Inventario")
-                pdf_canvas.setFont("Helvetica-Bold", 10)
-                for i, header in enumerate(headers):
-                    pdf_canvas.drawString(start_x + sum(col_widths[:i]), y, header)
-                pdf_canvas.line(start_x, y - 5, start_x + sum(col_widths), y - 5)
-                y -= line_height
-                pdf_canvas.setFont("Helvetica", 9)
-        
-    draw_table(pdf_canvas, start_y, productos)
-    
-    pdf_canvas.showPage()
-    pdf_canvas.save()
     return response

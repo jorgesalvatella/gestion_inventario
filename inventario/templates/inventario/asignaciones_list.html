@@ -1,32 +1,63 @@
 {% extends 'base.html' %}
 
 {% block content %}
-  <h1>Listado de Asignaciones</h1>
+<div class="container mt-4">
+    <h1 class="text-center mb-4">📋 Listado de Asignaciones</h1>
 
-  <table class="table">
-    <thead>
-      <tr>
-        <th>Producto</th>
-        <th>Origen</th>
-        <th>Destino</th>
-        <th>Cantidad</th>
-        <th>Fecha</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for asignacion in asignaciones %}
-      <tr>
-        <td>{{ asignacion.inventario.nombre }}</td>  <!-- Verifica que 'nombre' sea el campo correcto -->
-        <td>{{ asignacion.restaurante_origen.nombre }}</td>  <!-- Verifica que 'nombre' sea el campo correcto -->
-        <td>{{ asignacion.restaurante_destino.nombre }}</td>  <!-- Verifica que 'nombre' sea el campo correcto -->
-        <td>{{ asignacion.cantidad_asignada }}</td>
-        <td>{{ asignacion.fecha_asignacion }}</td>
-      </tr>
-      {% empty %}
-      <tr>
-        <td colspan="5">No hay asignaciones disponibles.</td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+    <!-- 📌 Vista para Pantallas Grandes: Tabla -->
+    <div class="d-none d-md-block">
+        <table class="table table-hover table-striped align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>📦 Producto</th>
+                    <th>🏬 Origen</th>
+                    <th>🚚 Destino</th>
+                    <th>🔢 Cantidad</th>
+                    <th>📅 Fecha</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for asignacion in asignaciones %}
+                <tr>
+                    <td>{{ asignacion.inventario.nombre }}</td>
+                    <td>{{ asignacion.restaurante_origen.nombre }}</td>
+                    <td>{{ asignacion.restaurante_destino.nombre }}</td>
+                    <td class="fw-bold">{{ asignacion.cantidad_asignada }}</td>
+                    <td>{{ asignacion.fecha_asignacion|date:"d M Y" }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="text-center text-muted">No hay asignaciones disponibles.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 📌 Vista para Pantallas Pequeñas: Tarjetas -->
+    <div class="d-md-none">
+        <div class="row row-cols-1 row-cols-sm-2 g-3">
+            {% for asignacion in asignaciones %}
+            <div class="col">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ asignacion.inventario.nombre }}</h5>
+                        <p class="card-text">
+                            <strong>🏬 Origen:</strong> {{ asignacion.restaurante_origen.nombre }}<br>
+                            <strong>🚚 Destino:</strong> {{ asignacion.restaurante_destino.nombre }}<br>
+                            <strong>🔢 Cantidad:</strong> {{ asignacion.cantidad_asignada }}<br>
+                            <strong>📅 Fecha:</strong> {{ asignacion.fecha_asignacion|date:"d M Y" }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col">
+                <div class="alert alert-warning text-center">No hay asignaciones disponibles.</div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
 {% endblock %}
+

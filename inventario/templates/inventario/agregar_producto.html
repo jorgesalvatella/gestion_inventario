@@ -1,29 +1,67 @@
 {% extends 'base.html' %}
 
 {% block content %}
-  <h1>Agregar Producto</h1>
-  
-  <form method="POST">
-    {% csrf_token %}
-    
-    <!-- Mostrar los errores del formulario si existen -->
-    {% if form.errors %}
-      <div class="errors">
-        <ul>
-          {% for field in form %}
-            {% for error in field.errors %}
-              <li>{{ error }}</li>
+<div class="container mt-4">
+    <h1 class="text-center mb-4">➕ Agregar Producto</h1>
+
+    <!-- 📌 Formulario de Agregar Producto -->
+    <div class="card shadow-sm p-4">
+        <form method="POST" enctype="multipart/form-data" class="row g-3">
+            {% csrf_token %}
+
+            {% if form.errors %}
+                <div class="alert alert-danger">
+                    <ul>
+                        {% for field in form %}
+                            {% for error in field.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+
+            {% for field in form %}
+                <div class="col-12 col-md-6">
+                    <label class="form-label fw-bold">{{ field.label }}</label>
+                    <div>{{ field }}</div>
+                </div>
             {% endfor %}
-          {% endfor %}
-        </ul>
-      </div>
+
+            <div class="col-12 text-center mt-3">
+                <button type="submit" class="btn btn-dark w-100 w-md-50">Guardar Producto ✅</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- 📌 Último Producto Agregado -->
+    {% if ultimo_producto %}
+    <div class="mt-5">
+        <h2 class="text-center">📦 Último Producto Agregado</h2>
+        <div class="card shadow-sm p-3">
+            <div class="d-flex flex-column flex-md-row align-items-center">
+                <div class="mb-3 mb-md-0 text-center">
+                    {% if ultimo_producto.imagen %}
+                        <img src="{{ ultimo_producto.imagen.url }}" class="img-thumbnail" width="120">
+                    {% else %}
+                        <span class="text-muted">Sin imagen</span>
+                    {% endif %}
+                </div>
+                <div class="ms-md-3 text-center text-md-start">
+                    <h5 class="fw-bold">{{ ultimo_producto.nombre }}</h5>
+                    <p>
+                        <strong>🏬 Restaurante:</strong> {{ ultimo_producto.restaurante.nombre }}<br>
+                        <strong>📂 Grupo:</strong> {{ ultimo_producto.grupo.nombre }}<br>
+                        <strong>🏗️ Material:</strong> {{ ultimo_producto.material }}<br>
+                        <strong>🏷️ Marca:</strong> {{ ultimo_producto.marca }}<br>
+                        <strong>📊 Cantidad:</strong> {{ ultimo_producto.cantidad }}<br>
+                        <strong>🕒 Fecha de Ingreso:</strong> {{ ultimo_producto.fecha_ingreso|date:"d M Y" }}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
     {% endif %}
-    
-    <!-- Renderiza el formulario -->
-    {{ form.as_p }}
-    
-    <button type="submit">Guardar Producto</button>
-  </form>
-  
+</div>
 {% endblock %}
 

@@ -1,25 +1,50 @@
 {% extends 'base.html' %}
 
 {% block content %}
-  <h1>Asignar Producto</h1>
+<div class="container mt-4">
+    <h1 class="text-center mb-4">🔄 Asignar Producto</h1>
 
-  <form method="POST">
-    {% csrf_token %}
+    <!-- 📌 Formulario de Asignación -->
+    <div class="card shadow-sm p-4">
+        <form method="POST" class="row g-3">
+            {% csrf_token %}
 
-    {% if form.errors %}
-      <div class="alert alert-danger">
-        <ul>
-          {% for field in form %}
-            {% for error in field.errors %}
-              <li>{{ error }}</li>
+            {% if form.errors %}
+                <div class="alert alert-danger">
+                    <ul>
+                        {% for field in form %}
+                            {% for error in field.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+
+            {% for field in form %}
+                <div class="col-12">
+                    <label class="form-label fw-bold d-block">{{ field.label }}</label>
+                    <div class="d-flex flex-wrap">
+                        {{ field }}
+                    </div>
+                </div>
             {% endfor %}
-          {% endfor %}
-        </ul>
-      </div>
-    {% endif %}
 
-    {{ form.as_p }}
+            <div class="col-12 text-center mt-3">
+                <button type="submit" class="btn btn-dark w-100">✅ Asignar Producto</button>
+            </div>
+        </form>
+    </div>
+</div>
 
-    <button type="submit" class="btn btn-primary">Asignar Producto</button>
-  </form>
+<!-- 📌 CSS para evitar scroll en selects -->
+<style>
+    select, input {
+        width: 100%;
+    }
+    .d-flex.flex-wrap select {
+        flex: 1 1 auto;
+    }
+</style>
 {% endblock %}
+
