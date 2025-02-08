@@ -45,6 +45,7 @@
         <table class="table table-hover table-striped align-middle">
             <thead class="table-dark">
                 <tr>
+                    <th>🆔 ID</th>
                     <th>📸 Imagen</th>
                     <th>📦 Nombre</th>
                     <th>🏬 Restaurante</th>
@@ -58,6 +59,7 @@
             <tbody>
                 {% for producto in page_obj %}
                 <tr>
+                    <td>{{ producto.id }}</td>
                     <td>
                         {% if producto.imagen %}
                             <img src="{{ producto.imagen.url }}" alt="{{ producto.nombre }}" class="img-thumbnail" width="70">
@@ -75,7 +77,7 @@
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="8" class="text-center text-muted">No hay productos en el inventario.</td>
+                    <td colspan="9" class="text-center text-muted">No hay productos en el inventario.</td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -94,6 +96,7 @@
                     <div class="card-body">
                         <h5 class="card-title">{{ producto.nombre }}</h5>
                         <p class="card-text">
+                            <strong>🆔 ID:</strong> {{ producto.id }}<br>
                             <strong>🏬 Restaurante:</strong> {{ producto.restaurante.nombre }}<br>
                             <strong>📂 Grupo:</strong> {{ producto.grupo.nombre }}<br>
                             <strong>🏗️ Material:</strong> {{ producto.material }}<br>
@@ -153,7 +156,6 @@
             {% endif %}
         </ul>
     </div>
-
 
 </div>
 {% endblock %}
